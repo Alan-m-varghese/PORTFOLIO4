@@ -73,12 +73,17 @@
     position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
     display: flex; align-items: center; justify-content: space-between;
     padding: 18px 6%;
-    background: rgba(24,0,8,0.6);
+    background: transparent;
+    backdrop-filter: none;
+    border-bottom: 1px solid transparent;
+    transition: all .5s ease;
+  }
+  nav.scrolled {
+    padding: 12px 6%;
+    background: rgba(24,0,8,0.92);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid rgba(250,188,63,0.1);
-    transition: all .4s;
   }
-  nav.scrolled { padding: 12px 6%; background: rgba(24,0,8,0.92); }
 
   .nav-logo {
     font-family: 'Cinzel Decorative', serif;
@@ -147,19 +152,82 @@
   }
   @keyframes gridMove { to { background-position: 0 60px; } }
 
-  /* radial glow */
+  /* ── HERO GOLDEN ORB — massive atmospheric circle ── */
+
+  /* Layer 1: giant outer crimson/ember halo — 140vw wide */
   .hero-glow {
     position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 700px; height: 700px;
+    width: 140vw; height: 140vw;
+    max-width: 1800px; max-height: 1800px;
+    border-radius: 50%;
     background: radial-gradient(circle,
-      rgba(250,188,63,.07) 0%,
-      rgba(232,92,13,.05) 40%,
-      transparent 70%);
-    pointer-events: none;
-    animation: pulse 4s ease-in-out infinite;
+      transparent           20%,
+      rgba(232,92,13,.05)   45%,
+      rgba(199,37,62,.04)   65%,
+      transparent           85%);
+    filter: blur(80px);
+    pointer-events: none; z-index: 0;
+    animation: pulseOuter 6s ease-in-out infinite;
   }
-  @keyframes pulse { 0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.7} 50%{transform:translate(-50%,-50%) scale(1.15);opacity:1} }
+
+  /* Layer 2: big golden mid ring — 110vw wide */
+  .hero-glow-mid {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 110vw; height: 110vw;
+    max-width: 1400px; max-height: 1400px;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+      rgba(250,188,63,.08)  0%,
+      rgba(250,188,63,.12)  20%,
+      rgba(232,92,13,.07)   42%,
+      rgba(199,37,62,.03)   62%,
+      transparent           80%);
+    filter: blur(70px);
+    pointer-events: none; z-index: 0;
+    animation: pulseMid 4.5s ease-in-out infinite;
+  }
+
+  /* Layer 3: bright inner golden orb — 60vw wide */
+  .hero-glow-inner {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60vw; height: 60vw;
+    max-width: 800px; max-height: 800px;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+      rgba(255,225,110,.2)  0%,
+      rgba(250,188,63,.18)  22%,
+      rgba(232,92,13,.09)   50%,
+      transparent           78%);
+    filter: blur(45px);
+    pointer-events: none; z-index: 0;
+    animation: pulseInner 3.5s ease-in-out infinite;
+  }
+
+  /* Layer 4: hot bright core — 22vw wide */
+  .hero-glow-gleam {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 22vw; height: 22vw;
+    max-width: 320px; max-height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+      rgba(255,245,200,.28) 0%,
+      rgba(250,188,63,.22)  30%,
+      rgba(232,92,13,.08)   60%,
+      transparent           80%);
+    filter: blur(18px);
+    pointer-events: none; z-index: 0;
+    animation: gleamPulse 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pulseOuter  { 0%,100%{ opacity:.8;  transform:translate(-50%,-50%) scale(1);    } 50%{ opacity:1;    transform:translate(-50%,-50%) scale(1.06); } }
+  @keyframes pulseMid    { 0%,100%{ opacity:.85; transform:translate(-50%,-50%) scale(1);    } 50%{ opacity:1;    transform:translate(-50%,-50%) scale(1.09); } }
+  @keyframes pulseInner  { 0%,100%{ opacity:.8;  transform:translate(-50%,-50%) scale(1);    } 50%{ opacity:1;    transform:translate(-50%,-50%) scale(1.14); } }
+  @keyframes gleamPulse  { 0%,100%{ opacity:.75; transform:translate(-50%,-50%) scale(1);    } 50%{ opacity:1;    transform:translate(-50%,-50%) scale(1.25); } }
+  @keyframes pulse       { 0%,100%{ opacity:.8;  transform:translate(-50%,-50%) scale(1);    } 50%{ opacity:1;    transform:translate(-50%,-50%) scale(1.1);  } }
 
   /* floating orbs */
   .orb {
@@ -857,6 +925,9 @@
 <!-- HERO -->
 <section id="hero">
   <div class="hero-glow"></div>
+  <div class="hero-glow-mid"></div>
+  <div class="hero-glow-inner"></div>
+  <div class="hero-glow-gleam"></div>
   <div class="orb orb1"></div>
   <div class="orb orb2"></div>
   <div class="orb orb3"></div>
@@ -1090,7 +1161,7 @@
           <div class="contact-icon">✉️</div>
           <div>
             <div class="contact-item-label">Email</div>
-            <div class="contact-item-val">akhan85081@gmail.com</div>
+            <div class="contact-item-val"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fb9a90939a95c3cecbc3cabb9c969a9297d5989496">[email&#160;protected]</a></div>
           </div>
         </div>
         <div class="contact-item">
@@ -1155,7 +1226,7 @@
   <p>© 2025 <span>Arshad</span> · Video Editor · Crafted with precision &amp; passion</p>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ─── CURSOR ─── */
 const cur = document.getElementById('cursor');
 const curT = document.getElementById('cursor-trail');
@@ -1172,12 +1243,6 @@ function animTrail(){
   requestAnimationFrame(animTrail);
 }
 animTrail();
-
-/* ─── NAV SCROLL ─── */
-const navbar = document.getElementById('navbar');
-window.addEventListener('scroll', () => {
-  navbar.classList.toggle('scrolled', window.scrollY > 40);
-});
 
 /* ─── HAMBURGER ─── */
 const ham = document.getElementById('hamburger');
@@ -1327,6 +1392,12 @@ document.querySelectorAll('.carousel-track').forEach(track => {
   });
 });
 
+/* ─── NAV SCROLL ─── */
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+});
+
 function handleSubmit(e) {
   e.preventDefault();
   const btn = e.target;
@@ -1335,8 +1406,7 @@ function handleSubmit(e) {
   setTimeout(() => {
     btn.textContent = 'Send Message →';
     btn.style.background = '';
-  }, 3000);
-}
+  }, 3000);}
 
 window.addEventListener('scroll', () => {
   const y = window.scrollY;
