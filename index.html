@@ -336,7 +336,7 @@
   .vid-slide iframe {
     width: 100%; height: 100%;
     border: none; display: block;
-    pointer-events: none; /* disabled on side slides — enabled on center */
+    pointer-events: none;
   }
   .vid-slide.center iframe { pointer-events: auto; }
 
@@ -581,7 +581,7 @@
       <button class="cat-btn active" data-cat="ae">📽 AI + AFTEREFFECTS</button>
       <button class="cat-btn" data-cat="anime">🎭 AI + Anime Graphics</button>
       <button class="cat-btn" data-cat="doc">📺 Documentary</button>
-      <button class="cat-btn" data-cat="tech">📊 Technology</button>
+      <button class="cat-btn" data-cat="tech">📊 Motion Graphics</button>
       <button class="cat-btn" data-cat="thumb">✨ Thumbnail</button>
     </div>
   </div>
@@ -671,7 +671,7 @@
         <select>
           <option value="">Select a category…</option>
           <option>AI + After Effects</option><option>AI + Anime Graphics</option>
-          <option>Documentary</option><option>Technology</option><option>Thumbnail</option>
+          <option>Documentary</option><option>Motion Graphics</option><option>Thumbnail</option>
         </select>
       </div>
       <div class="form-group"><label>Message</label><textarea placeholder="Tell me about your project…"></textarea></div>
@@ -682,7 +682,7 @@
 
 <footer><p>© 2025 <span>Arshad</span> · Video Editor · Crafted with precision &amp; passion</p></footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 /* ╔══════════════════════════════════════════════════════════════╗
    ║              HOW TO ADD YOUR GOOGLE DRIVE VIDEOS             ║
    ╠══════════════════════════════════════════════════════════════╣
@@ -773,7 +773,7 @@ const data = {
 };
 
 /* ════════════════════════════════════════════════════
-   CAROUSEL ENGINE — autoplay on every slide switch
+   CAROUSEL ENGINE
 ════════════════════════════════════════════════════ */
 
 const PLACEHOLDER = 'PASTE_DRIVE_FILE_ID_HERE';
@@ -783,15 +783,17 @@ function hasVideo(item) {
   return item.driveId && item.driveId !== PLACEHOLDER;
 }
 
-/*
-  Google Drive /preview has no ?autoplay=1 param.
-  The trick: inject iframe with src="about:blank" first,
-  then after a short delay set the real URL with a cache-bust
-  timestamp (?t=...). This forces a fresh load which triggers
-  Drive's built-in autoplay on first render.
-*/
 function driveAutoSrc(id) {
   return `https://drive.google.com/file/d/${id}/preview?t=${Date.now()}`;
+}
+
+/* ── STOP current video immediately (called before any slide change) ── */
+function stopCurrentVideo(cat) {
+  const centerEl = document.getElementById(cat + '-center');
+  if (!centerEl) return;
+  const iframe = centerEl.querySelector('iframe');
+  if (iframe) iframe.src = 'about:blank';
+  centerEl.classList.remove('playing');
 }
 
 /* ── Placeholder card ── */
@@ -822,7 +824,6 @@ function placeholderCard(item, isCenter) {
 function makeSlide(item, isCenter) {
   if (!hasVideo(item)) return placeholderCard(item, isCenter);
   if (isCenter) {
-    /* src starts blank — set after render to trigger autoplay */
     return `
       <iframe src="about:blank" allow="autoplay; fullscreen" allowfullscreen></iframe>
       <div class="vid-thumb-wrap" onclick="playVideo(this)">
@@ -866,7 +867,7 @@ function buildCarousel(cat) {
   dots.innerHTML = items.map((_,i) =>
     `<div class="dot ${i===0?'active':''}" onclick="goTo('${cat}',${i})"></div>`
   ).join('');
-  renderSlides(cat, false); /* no autoplay on first load */
+  renderSlides(cat, false);
 }
 
 function renderSlides(cat, autoplay = true) {
@@ -891,7 +892,6 @@ function renderSlides(cat, autoplay = true) {
   document.querySelectorAll(`#dots-${cat} .dot`)
     .forEach((d,i) => d.classList.toggle('active', i === current));
 
-  /* Autoplay: inject real src after DOM settles, then hide overlay */
   if (autoplay && hasVideo(items[current])) {
     const iframe = centerEl.querySelector('iframe');
     if (iframe) {
@@ -903,7 +903,9 @@ function renderSlides(cat, autoplay = true) {
   }
 }
 
+/* ── FIXED: stop video IMMEDIATELY before slide transition ── */
 function slide(cat, dir) {
+  stopCurrentVideo(cat);   // ← kills audio/video at once
   states[cat].current = (states[cat].current + dir + states[cat].total) % states[cat].total;
   const track = document.getElementById('track-' + cat);
   track.style.transition = 'transform .3s cubic-bezier(.16,1,.3,1)';
@@ -915,16 +917,24 @@ function slide(cat, dir) {
   }, 160);
 }
 
+/* ── FIXED: stop video IMMEDIATELY before dot navigation ── */
 function goTo(cat, idx) {
+  stopCurrentVideo(cat);   // ← kills audio/video at once
   states[cat].current = idx;
   renderSlides(cat, true);
 }
 
 Object.keys(data).forEach(cat => buildCarousel(cat));
 
-/* ── CATEGORY TABS ── */
+/* ── CATEGORY TABS — also stop any playing video when switching tabs ── */
 document.querySelectorAll('.cat-btn').forEach(btn => {
   btn.addEventListener('click', () => {
+    /* Stop video in the currently active panel */
+    const activePanel = document.querySelector('.carousel-panel.active');
+    if (activePanel) {
+      const activeCat = activePanel.id.replace('panel-', '');
+      stopCurrentVideo(activeCat);
+    }
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const cat = btn.dataset.cat;
@@ -997,7 +1007,7 @@ window.addEventListener('scroll', () => {
 function handleSubmit(e) {
   e.preventDefault();
   const btn = e.target;
-    btn.textContent = '✓ Message Sent!';
+  btn.textContent = '✓ Message Sent!';
   btn.style.background = 'linear-gradient(135deg,#FABC3F,#E85C0D)';
   setTimeout(() => { btn.textContent = 'Send Message →'; btn.style.background = ''; }, 3000);
 }
